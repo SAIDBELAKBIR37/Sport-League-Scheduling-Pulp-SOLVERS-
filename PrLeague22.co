@@ -1,0 +1,45 @@
+import cotfd;
+
+int n = 20 ;
+range Periods = 1..n/2;
+range Teams  = 1..n;
+range Weeks  = 1..n-1;
+range EWeeks = 1..n;
+
+enum Location = {home,away};
+range Games = 1..((n/2)*(n-1));
+
+
+Solver <CP> cp();
+
+
+var<CP>{int} team[Periods,EWeeks,Location](cp,Teams);
+var<CP>{int} game[Periods,Weeks](cp,1..n^2);
+
+explore<cp>{
+
+
+
+//Chaque équipe doit jouer un seul match à chaque semaine
+forall(w in EWeeks)
+   cp.post(alldifferent(all(p in Periods,l in Location) team[p,w,l]));
+//Chaque équipe joue au maximum deux matches à chaque période
+forall(p in Periods)
+   cp.post(exactly(all(i in Teams)2,all(w in EWeeks,l in Location) team[p,w,l]));
+//deux équipes se rencotrenet une seule fois durant le tournoi
+   cp.post(alldifferent(all(p in Periods,w in Weeks) game[p,w]));
+
+
+//Eviter la redondance (équipe i contre équipe j est la meme chose que équipe j contre équipe i)
+forall(p in Periods, w in Weeks)
+   cp.post(team[p,w,home] < team[p,w,away]);}
+
+//ajouter la contrainte qu'one 
+
+forall(k in Weeks){
+   forall(j in Periods){
+      cout << team[j,k,home] << " VS " << team[j,k,away];
+   if(j<n/2) cout<< " ; ";
+   }
+   cout << endl;
+}   
